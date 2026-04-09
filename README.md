@@ -49,14 +49,13 @@ Tout ça dans un seul fichier `index.html`, sans dépendances externes.
 Internet
    │
    ▼
-Traefik (reverse proxy)
-   │  ├─ SSL Let's Encrypt automatique
-   │  └─ Routing par label Docker
+Reverse proxy (SSL automatique + routing)
+   │
    ▼
-Container nginx:alpine
-   └─ sert index.html (page statique)
+Container web (serveur statique)
+   └─ sert index.html
 
-Hôte : VPS Ubuntu 6.8 · Hostinger
+Hôte : VPS Linux dédié
 ```
 
 ### Stack
@@ -64,12 +63,11 @@ Hôte : VPS Ubuntu 6.8 · Hostinger
 | Composant | Rôle |
 |-----------|------|
 | `HTML/CSS/JS` vanilla | La page elle-même — zéro dépendance, un seul fichier |
-| `nginx:alpine` | Serveur web léger dans Docker |
-| `Traefik` | Reverse proxy, terminaison SSL, routing |
-| `Let's Encrypt` | Certificats TLS automatiques via Traefik |
-| `Docker` | Isolation et déploiement du container nginx |
-| `Ubuntu 6.8` | OS du VPS Hostinger |
-| `OpenClaw` | Framework qui fait tourner Killiawn lui-même (hors scope de ce repo) |
+| Serveur web containerisé | Léger et isolé |
+| Reverse proxy | Terminaison SSL, routing par domaine |
+| `Let's Encrypt` | Certificats TLS automatiques |
+| `Docker` | Isolation et déploiement |
+| Agent IA | Framework qui fait tourner Killiawn lui-même (hors scope de ce repo) |
 
 ---
 
@@ -83,15 +81,14 @@ Hôte : VPS Ubuntu 6.8 · Hostinger
 
 ### Lancer le container
 
+La configuration exacte dépend de ton setup reverse proxy. L'idée générale : un container qui sert `index.html` en statique, exposé via ton reverse proxy avec SSL.
+
 ```bash
+# Exemple générique
 docker run -d \
   --name killiawn-web \
-  --network web \
-  --label "traefik.enable=true" \
-  --label "traefik.http.routers.killiawn.rule=Host(\`killiawn.faimulus.fr\`)" \
-  --label "traefik.http.routers.killiawn.entrypoints=websecure" \
-  --label "traefik.http.routers.killiawn.tls.certresolver=letsencrypt" \
   -v $(pwd)/index.html:/usr/share/nginx/html/index.html:ro \
+  -p 8080:80 \
   nginx:alpine
 ```
 
@@ -151,4 +148,4 @@ Code source libre d'utilisation et d'adaptation. Le design et l'identité visuel
 
 ---
 
-*Design créé par [Claude Code](https://claude.ai/code) · Killiawn tourne sur OpenClaw · Hébergé chez Hostinger*
+*Design créé par [Claude Code](https://claude.ai/code) · Killiawn propulsé par un framework d'agent IA*
